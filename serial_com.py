@@ -27,7 +27,7 @@ def read_data(ser, size=1):
 
 
 def checksum(data):
-    return TODO
+    return (~data) & 0xff
 
 
 # def bitwise_and_bytes(a, b):
@@ -36,31 +36,35 @@ def checksum(data):
 
 if __name__ == "__main__":
     # we open the port. Check that this is correct by running "ls /dev/ttyACM*" in a terminal
-    serial_port = open_serial("/dev/ttyACM0", 1000000, timeout=0.1)
+    serial_port = open_serial("COM3", 1000000, timeout=0.1)
 
     on_or_off = 1
     # we create the packet for a LED ON/OFF command and alternate between them
     while True:
+        on_or_off = 1 - on_or_off
         # two start bytes
         data_start = 0xFF
 
         # id of the motor, you need to change it
-        data_id = 53
+        data_id = 43
         print(f"data_id raw = {data_id}")
 
         # Continue here the construction of the packet
-        TODO
+        data_length = 0x04
+        data_parameter = on_or_off
+        adress = 0x19
+        instruction = 0x03
 
         # checksum (read the doc)
         data_checksum = checksum(
-            TODO
+            data_id + data_length + data_parameter + adress + instruction
         )  # 0xdd
 
         print("checksum = {}".format(data_checksum))
 
         # we concatenate everything into a bytes object
         list_of_integers = [
-            TODO
+           data_start, data_start, data_id , data_length, instruction ,adress, data_parameter , data_checksum
         ]
         data = bytes(list_of_integers)
 
