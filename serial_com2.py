@@ -36,11 +36,12 @@ def checksum(data):
 
 if __name__ == "__main__":
     # we open the port. Check that this is correct by running "ls /dev/ttyACM*" in a terminal
-    serial_port = open_serial("COM3", 1000000, timeout=0.1)
+    serial_port = open_serial("COM4", 1000000, timeout=0.1)
 
     on_or_off = 1
     # we create the packet for a LED ON/OFF command and alternate between them
     while True:
+        on_or_off = 1 - on_or_off
         # two start bytes
         data_start = 0xFF
 
@@ -49,23 +50,21 @@ if __name__ == "__main__":
         print(f"data_id raw = {data_id}")
 
         # Continue here the construction of the packet
-        data_length = 0x05
-        data_parameter1 = 0x00
-        data_parameter2 = 0x02
-        adress = 0x1E
-        adress2 = 0x1F
+        data_length = 0x04
+        data_parameter = on_or_off
+        adress = 0x19
         instruction = 0x03
 
         # checksum (read the doc)
         data_checksum = checksum(
-            data_id + data_length + data_parameter1 + data_parameter2 + adress + instruction
+            data_id + data_length + data_parameter + adress + instruction
         )  # 0xdd
 
         print("checksum = {}".format(data_checksum))
 
         # we concatenate everything into a bytes object
         list_of_integers = [
-           data_start, data_start, data_id , data_length, instruction , adress, data_parameter1, data_parameter2 , data_checksum
+           data_start, data_start, data_id , data_length, instruction ,adress, data_parameter , data_checksum
         ]
         data = bytes(list_of_integers)
 
